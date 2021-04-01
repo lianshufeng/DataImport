@@ -14,7 +14,7 @@
     <name>DataImport</name>
     <description>Demo project for Spring Boot</description>
     <properties>
-        <java.version>11</java.version>
+        <java.version>8</java.version>
 
 
         <mongo-java-driver.version>3.12.7</mongo-java-driver.version>
