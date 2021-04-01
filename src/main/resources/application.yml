@@ -1,0 +1,7 @@
+
+
+spring:
+  data:
+    mongodb:
+      uri: mongodb://phone:hao123@127.0.0.1/phone
+      auto-index-creation: true
