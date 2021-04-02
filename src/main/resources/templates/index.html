@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script type="text/javascript" th:src="@{/static/jquery-3.6.0.min.js}"></script>
+</head>
+<body>
+
+<p>
+    <div>
+        <input type="button" value="导入数据" id="importData"/>
+        <span>文件放在 :</span>
+        <span th:text="${importFile}">c:/data</span>
+    </div>
+</p>
+
+<p>
+<div>
+    <input type="button" value="导出数据" id="exportData"/>
+    <span>文件放在 :</span>
+    <span th:text="${exportFile}">c:/data</span>
+</div>
+</p>
+
+
+<script>
+    $(function () {
+        $("#importData").click(function () {
+            $.ajax({
+                url: "data/import",
+                dataType: 'JSON',
+                success: function (result) {
+                    alert(JSON.stringify(result));
+                }
+            });
+        });
+
+        $("#exportData").click(function () {
+            $.ajax({
+                url: "data/export",
+                dataType: 'JSON',
+                success: function (result) {
+                    alert(JSON.stringify(result));
+                }
+            });
+        });
+
+
+
+    });
+</script>
+
+
+</body>
+</html>

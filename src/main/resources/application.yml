@@ -1,7 +1,17 @@
 
 
 spring:
+  thymeleaf:
+    suffix: .html
+    mode: HTML
+    prefix: classpath:/templates/
+    cache: false
+    encoding: UTF-8
   data:
     mongodb:
-      uri: mongodb://phone:hao123@127.0.0.1/phone
+#      uri: mongodb://phone:hao123@127.0.0.1/phone
+      uri: mongodb://127.0.0.1/phone
       auto-index-creation: true
+  web:
+    resources:
+      static-locations: classpath:/static/

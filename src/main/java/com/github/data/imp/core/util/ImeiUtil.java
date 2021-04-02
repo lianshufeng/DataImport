@@ -3,7 +3,25 @@ package com.github.data.imp.core.util;
 public class ImeiUtil {
 
     /**
+     * 构建IMEI
+     *
+     * @param imei
+     * @return
+     */
+    public static String build(String imei) {
+        if (imei.length() >= 15) {
+            String imei14 = imei.substring(0, imei.length() - 1);
+            return imei14 + getImei15(imei14);
+        } else if (imei.length() == 14) {
+            return imei + getImei15(imei);
+        }
+        return null;
+    }
+
+
+    /**
      * 14位构建
+     *
      * @param imei
      * @return
      */
