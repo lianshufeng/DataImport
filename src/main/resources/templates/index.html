@@ -24,6 +24,15 @@
 </p>
 
 
+<p>
+<div>
+    <input type="button" value="提取数据" id="transformData"/>
+    <span>文件放在 :</span>
+    <span th:text="${transformFile}">c:/data</span>
+</div>
+</p>
+
+
 <script>
     $(function () {
         $("#importData").click(function () {
@@ -46,6 +55,16 @@
             });
         });
 
+
+        $("#transformData").click(function () {
+            $.ajax({
+                url: "data/transform",
+                dataType: 'JSON',
+                success: function (result) {
+                    alert(JSON.stringify(result));
+                }
+            });
+        });
 
 
     });

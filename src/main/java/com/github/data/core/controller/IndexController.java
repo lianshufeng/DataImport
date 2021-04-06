@@ -16,8 +16,9 @@ public class IndexController {
     @RequestMapping({"/", ""})
     public ModelAndView index() {
         ModelAndView modelAndView = new ModelAndView("index.html");
-        modelAndView.addObject("importFile", pathHelper.getInputPath().getAbsolutePath());
-        modelAndView.addObject("exportFile", pathHelper.getExportPath().getAbsolutePath());
+        modelAndView.addObject("importFile", pathHelper.getDataInputPath().getAbsolutePath());
+        modelAndView.addObject("exportFile", pathHelper.getDataExportPath().getAbsolutePath());
+        modelAndView.addObject("transformFile", pathHelper.getTransformImportPath().getAbsolutePath());
         return modelAndView;
     }
 

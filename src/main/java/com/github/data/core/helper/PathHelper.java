@@ -1,6 +1,8 @@
 package com.github.data.core.helper;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.system.ApplicationHome;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
@@ -9,17 +11,16 @@ import java.io.File;
 public class PathHelper {
 
 
-    /**
-     * 获取输入路径下的所有文件
-     *
-     * @return
-     */
-    public File[] readInputFiles() {
-        File file = getInputPath();
-        if (file.exists()) {
-            return file.listFiles();
-        }
-        return new File[0];
+    @Autowired
+    private void initStore(ApplicationContext applicationContext) {
+        getDataInputPath().mkdirs();
+        getDataExportPath().mkdirs();
+        getTransformImportPath().mkdirs();
+        getTransformExportPath().mkdirs();
+    }
+
+    private File getStore() {
+        return new File(new ApplicationHome().getDir().getAbsolutePath() + "/store/");
     }
 
 
@@ -28,8 +29,8 @@ public class PathHelper {
      *
      * @return
      */
-    public File getInputPath() {
-        return new File(new ApplicationHome().getDir().getAbsolutePath() + "/store/import");
+    public File getDataInputPath() {
+        return new File(getStore().getAbsolutePath() + "/data/import");
     }
 
 
@@ -38,8 +39,29 @@ public class PathHelper {
      *
      * @return
      */
-    public File getExportPath() {
-        return new File(new ApplicationHome().getDir().getAbsolutePath() + "/store/export");
+    public File getDataExportPath() {
+        return new File(getStore().getAbsolutePath() + "/data/export");
     }
+
+
+    /**
+     * 获取转换目录
+     *
+     * @return
+     */
+    public File getTransformImportPath() {
+        return new File(getStore().getAbsolutePath() + "/transform/import");
+    }
+
+
+    /**
+     * 获取转换目录
+     *
+     * @return
+     */
+    public File getTransformExportPath() {
+        return new File(getStore().getAbsolutePath() + "/transform/export");
+    }
+
 
 }
