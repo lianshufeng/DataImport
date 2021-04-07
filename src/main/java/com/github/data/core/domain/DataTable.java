@@ -30,6 +30,9 @@ public class DataTable extends SuperEntity {
     @Indexed
     private String catName;
 
+    //城市
+    @Indexed
+    private String city;
 
     //设备号
     @Indexed(unique = true)

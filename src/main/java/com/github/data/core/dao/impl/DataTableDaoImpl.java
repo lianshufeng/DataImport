@@ -3,10 +3,12 @@ package com.github.data.core.dao.impl;
 import com.github.data.core.dao.extend.DataTableDaoExtend;
 import com.github.data.core.domain.DataTable;
 import com.github.data.other.mongo.helper.DBHelper;
+import com.github.data.other.mongo.util.EntityObjectUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 
 
 public class DataTableDaoImpl implements DataTableDaoExtend {
@@ -18,12 +20,10 @@ public class DataTableDaoImpl implements DataTableDaoExtend {
     private DBHelper dbHelper;
 
     @Override
-    public String replaceFromImei(DataTable dataTable) {
-        //删除存在的数据
-        this.mongoTemplate.remove(Query.query(Criteria.where("imei").is(dataTable.getImei())), DataTable.class);
-
-        dbHelper.saveTime(dataTable);
-        this.mongoTemplate.save(dataTable);
-        return dataTable.getId();
+    public void replaceFromImei(DataTable dataTable) {
+        Query query = Query.query(Criteria.where("imei").is(dataTable.getImei()));
+        Update update = new Update();
+        EntityObjectUtil.entity2Update(dataTable, update);
+        this.mongoTemplate.upsert(query, update, DataTable.class);
     }
 }

@@ -2,6 +2,7 @@ package com.github.data.core.service;
 
 import com.github.data.core.conf.DataConf;
 import com.github.data.core.dao.DataTableDao;
+import com.github.data.core.dao.PhoneLibDao;
 import com.github.data.core.domain.DataTable;
 import com.github.data.core.helper.ExportTextHelper;
 import com.github.data.core.helper.PathHelper;
@@ -17,6 +18,7 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
 import org.bson.Document;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Service;
@@ -27,6 +29,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -55,6 +58,9 @@ public class DataService {
 
     @Autowired
     private PathHelper pathHelper;
+
+    @Autowired
+    private PhoneLibDao phoneLibDao;
 
 
     @Autowired
@@ -227,6 +233,13 @@ public class DataService {
     private void setPhone(DataTable dataTable, String phone) {
         dataTable.setPhone(phone);
         dataTable.setPhoneHash(CRC32Util.update2(phone));
+
+        if (phone.length() >= 7) {
+            Optional.ofNullable(this.phoneLibDao.findByPhone(phone.substring(0, 7))).ifPresent((it) -> {
+                BeanUtils.copyProperties(it, dataTable, "phone", "id");
+            });
+        }
+
 
 //        //查询号码归属地
 //        String url = String.format("https://tcc.taobao.com/cc/json/mobile_tel_segment.htm?tel=%s", phone);

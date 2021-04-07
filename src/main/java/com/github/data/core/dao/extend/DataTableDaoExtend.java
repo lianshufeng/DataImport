@@ -4,5 +4,5 @@ import com.github.data.core.domain.DataTable;
 
 public interface DataTableDaoExtend {
 
-    String replaceFromImei(DataTable dataTable);
+    void replaceFromImei(DataTable dataTable);
 }
