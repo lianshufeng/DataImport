@@ -11,34 +11,30 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class DataTable extends SuperEntity {
+public class PhoneLib extends SuperEntity {
 
-    //手机号码
+
+    //手机号码,前7位
     @Indexed
     private String phone;
 
-    //crc32
+
+    //区域号
     @Indexed
-    private String phoneHash;
+    private String area;
 
 
-    //手机号码归属地
+    //省份
     @Indexed
     private String province;
+
+    //城市
+    @Indexed
+    private String city;
+
 
     //手机运营商
     @Indexed
     private String catName;
-
-
-    //设备号
-    @Indexed(unique = true)
-    private String imei;
-
-
-    //设备号的MD5
-    @Indexed(unique = true)
-    private String imeiHash;
-
 
 }

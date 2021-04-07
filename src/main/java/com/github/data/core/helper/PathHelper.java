@@ -17,6 +17,7 @@ public class PathHelper {
         getDataExportPath().mkdirs();
         getTransformImportPath().mkdirs();
         getTransformExportPath().mkdirs();
+        getPhoneLibPath().mkdirs();
     }
 
     private File getStore() {
@@ -61,6 +62,16 @@ public class PathHelper {
      */
     public File getTransformExportPath() {
         return new File(getStore().getAbsolutePath() + "/transform/export");
+    }
+
+
+    /**
+     * 获取手机号码归属地的库导入
+     *
+     * @return
+     */
+    public File getPhoneLibPath() {
+        return new File(getStore().getAbsolutePath() + "/phone/import");
     }
 
 

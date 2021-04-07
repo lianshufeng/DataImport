@@ -5,7 +5,10 @@ import com.github.data.core.dao.DataTableDao;
 import com.github.data.core.domain.DataTable;
 import com.github.data.core.helper.ExportTextHelper;
 import com.github.data.core.helper.PathHelper;
-import com.github.data.core.util.*;
+import com.github.data.core.util.CRC32Util;
+import com.github.data.core.util.ImeiUtil;
+import com.github.data.core.util.JsonUtil;
+import com.github.data.core.util.SpringELUtil;
 import com.github.data.other.mongo.helper.DBHelper;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
@@ -24,7 +27,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -176,13 +178,13 @@ public class DataService {
         @Cleanup BufferedReader reader = new BufferedReader(fileReader);
         String line = null;
         while ((line = reader.readLine()) != null) {
-            final String lineText = line;
-            this.executorService.execute(() -> {
-                saveData(lineText);
-            });
+            try {
+                saveData(line);
+            } catch (Exception e) {
+                e.printStackTrace();
+                log.error("e : {}", e);
+            }
         }
-
-
     }
 
 
@@ -226,11 +228,11 @@ public class DataService {
         dataTable.setPhone(phone);
         dataTable.setPhoneHash(CRC32Util.update2(phone));
 
-        //查询号码归属地
-        String url = String.format("https://tcc.taobao.com/cc/json/mobile_tel_segment.htm?tel=%s", phone);
-        String info = new String(new HttpClient().get(url), "GBK");
-        dataTable.setProvince(TextUtil.subText(info, "province:'", "'", 0));
-        dataTable.setCatName(TextUtil.subText(info, "catName:'", "'", 0));
+//        //查询号码归属地
+//        String url = String.format("https://tcc.taobao.com/cc/json/mobile_tel_segment.htm?tel=%s", phone);
+//        String info = new String(new HttpClient().get(url), "GBK");
+//        dataTable.setProvince(TextUtil.subText(info, "province:'", "'", 0));
+//        dataTable.setCatName(TextUtil.subText(info, "catName:'", "'", 0));
 
     }
 
