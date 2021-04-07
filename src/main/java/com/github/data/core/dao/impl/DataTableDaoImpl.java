@@ -24,6 +24,7 @@ public class DataTableDaoImpl implements DataTableDaoExtend {
         Query query = Query.query(Criteria.where("imei").is(dataTable.getImei()));
         Update update = new Update();
         EntityObjectUtil.entity2Update(dataTable, update);
+        this.dbHelper.saveTime(update);
         this.mongoTemplate.upsert(query, update, DataTable.class);
     }
 }
