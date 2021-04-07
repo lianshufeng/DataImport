@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -87,6 +88,10 @@ public class DataService {
      */
     @SneakyThrows
     public void transformData(File... files) {
+        //清空存在的导出文件
+        Arrays.stream(this.pathHelper.getTransformExportPath().listFiles()).forEach((file) -> {
+            file.delete();
+        });
         for (File file : files) {
             executorService.execute(() -> {
                 transformData(file);
@@ -117,8 +122,9 @@ public class DataService {
                     log.info("save : {}", dataTable);
                     if (dataTable != null) {
                         final String baseName = FilenameUtils.getBaseName(file.getName());
-                        final String text = dataTable.getPhone() + "|" + dataTable.getProvince() + "|" + dataTable.getCatName() + "|" + lineText;
+                        final String text = SpringELUtil.parseExpression(dataTable, dataConf.getTransformFormat()) + "|" + lineText;
                         exportTextHelper.writeLine(pathHelper.getTransformExportPath().getAbsolutePath(), baseName, "txt", text);
+
                     }
                 }
             });
@@ -154,6 +160,7 @@ public class DataService {
     @SneakyThrows
     private void writeDataTable(Document document) {
         final DataTable dataTable = JsonUtil.toObject(dbHelper.toJson(document), DataTable.class);
+        log.info("write : {}", dataTable);
         exportTextHelper.writeLine(this.pathHelper.getDataExportPath().getAbsolutePath(), this.dataConf.getExportFileName(), "txt", dataTable.getPhoneHash() + "|" + dataTable.getImeiHash());
     }
 

@@ -28,5 +28,7 @@ public class DataConf {
     //导出的编码
     private String exportTextCharset = "GBK";
 
+    //转换的格式
+    private String transformFormat="#phone+'|'+#province+'|'+#catName";
 
 }
