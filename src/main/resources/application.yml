@@ -16,3 +16,6 @@ spring:
 logging:
   file:
     name: logs/data.log
+
+data:
+  importPhoneProvince: false

@@ -31,4 +31,7 @@ public class DataConf {
     //转换的格式
     private String transformFormat = "#phone+'|'+#province+'|'+#city+'|'+#catName";
 
+    //是否导入归属地
+    private boolean importPhoneProvince = true;
+
 }

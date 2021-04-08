@@ -46,7 +46,6 @@ public class DataService {
     @Autowired
     private MongoTemplate mongoTemplate;
 
-
     //线程池数量
     private ExecutorService executorService;
 
@@ -185,7 +184,8 @@ public class DataService {
         String line = null;
         while ((line = reader.readLine()) != null) {
             try {
-                saveData(line);
+                String lineText = line;
+                saveData(lineText);
             } catch (Exception e) {
                 e.printStackTrace();
                 log.error("e : {}", e);
@@ -219,13 +219,16 @@ public class DataService {
         log.info(" {} -> {}", phone, imei);
 
 
-        DataTable dataTable = new DataTable();
+        final DataTable dataTable = new DataTable();
 
         setPhone(dataTable, phone);
         setImei(dataTable, imei);
 
 
-        this.dataTableDao.replaceFromImei(dataTable);
+        executorService.execute(() -> {
+            this.dataTableDao.replaceFromImei(dataTable);
+        });
+
 
     }
 
@@ -234,7 +237,7 @@ public class DataService {
         dataTable.setPhone(phone);
         dataTable.setPhoneHash(CRC32Util.update2(phone));
 
-        if (phone.length() >= 7) {
+        if (this.dataConf.isImportPhoneProvince() && phone.length() >= 7) {
             Optional.ofNullable(this.phoneLibDao.findByPhone(phone.substring(0, 7))).ifPresent((it) -> {
                 BeanUtils.copyProperties(it, dataTable, "phone", "id");
             });
