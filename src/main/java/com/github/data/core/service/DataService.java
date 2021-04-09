@@ -149,15 +149,15 @@ public class DataService {
             file.delete();
         });
 
-        //查询所有数据
-        MongoCollection<Document> mongoCollection = this.mongoTemplate.getCollection(this.mongoTemplate.getCollectionName(DataTable.class));
-        MongoCursor<Document> mongoCursor = mongoCollection.find().cursor();
-        while (mongoCursor.hasNext()) {
-            final Document document = mongoCursor.next();
-            executorService.execute(() -> {
-                writeDataTable(document);
-            });
-        }
+        new Thread(() -> {
+            //查询所有数据
+            MongoCollection<Document> mongoCollection = this.mongoTemplate.getCollection(this.mongoTemplate.getCollectionName(DataTable.class));
+            MongoCursor<Document> mongoCursor = mongoCollection.find().cursor();
+            while (mongoCursor.hasNext()) {
+                writeDataTable(mongoCursor.next());
+            }
+        }).start();
+
     }
 
 
@@ -166,9 +166,14 @@ public class DataService {
      */
     @SneakyThrows
     private void writeDataTable(Document document) {
-        final DataTable dataTable = JsonUtil.toObject(dbHelper.toJson(document), DataTable.class);
-        log.info("write : {}", dataTable);
-        exportTextHelper.writeLine(this.pathHelper.getDataExportPath().getAbsolutePath(), this.dataConf.getExportFileName(), "txt", dataTable.getPhoneHash() + "|" + dataTable.getImeiHash());
+        try {
+            final DataTable dataTable = JsonUtil.toObject(dbHelper.toJson(document), DataTable.class);
+            log.info("write : {}", dataTable);
+            exportTextHelper.writeLine(this.pathHelper.getDataExportPath().getAbsolutePath(), this.dataConf.getExportFileName(), "txt", dataTable.getPhoneHash() + "|" + dataTable.getImeiHash());
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.error("error : {}", e);
+        }
     }
 
 
