@@ -46,6 +46,16 @@
 </p>
 
 
+<p>
+<div>
+    <input type="button" value="URL 转换" id="transformUrl"/>
+    <span>文件放在 :</span>
+    <span th:text="${transformUrlFile}">c:/data</span>
+</div>
+</p>
+
+
+
 <script>
     $(function () {
 
@@ -93,6 +103,16 @@
             });
         });
 
+
+        $("#transformUrl").click(function () {
+            $.ajax({
+                url: "url/transform",
+                dataType: 'JSON',
+                success: function (result) {
+                    alert(JSON.stringify(result));
+                }
+            });
+        });
 
     });
 </script>

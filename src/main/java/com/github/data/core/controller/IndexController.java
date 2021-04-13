@@ -20,6 +20,7 @@ public class IndexController {
         modelAndView.addObject("exportFile", pathHelper.getDataExportPath().getAbsolutePath());
         modelAndView.addObject("transformFile", pathHelper.getTransformImportPath().getAbsolutePath());
         modelAndView.addObject("phoneLibFile", pathHelper.getPhoneLibPath().getAbsolutePath());
+        modelAndView.addObject("transformUrlFile", pathHelper.getTransformUrlPath().getAbsolutePath());
         return modelAndView;
     }
 
