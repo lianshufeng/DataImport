@@ -99,7 +99,7 @@ public class DataService {
         Arrays.stream(this.pathHelper.getTransformExportPath().listFiles()).forEach((file) -> {
             file.delete();
         });
-        for (File file : files) {
+        for (final File file : files) {
             executorService.execute(() -> {
                 transformData(file);
             });
@@ -120,21 +120,17 @@ public class DataService {
         @Cleanup BufferedReader reader = new BufferedReader(fileReader);
         String line = null;
         while ((line = reader.readLine()) != null) {
-            final String lineText = line;
-            executorService.execute(() -> {
-                int at = lineText.indexOf("|");
-                if (at > -1) {
-                    String phoneHash = lineText.substring(0, at);
-                    final DataTable dataTable = this.dataTableDao.findByPhoneHash(phoneHash);
-                    log.info("save : {}", dataTable);
-                    if (dataTable != null) {
-                        final String baseName = FilenameUtils.getBaseName(file.getName());
-                        final String text = SpringELUtil.parseExpression(dataTable, dataConf.getTransformFormat()) + "|" + lineText;
-                        exportTextHelper.writeLine(pathHelper.getTransformExportPath().getAbsolutePath(), baseName, "txt", text);
-
-                    }
+            int at = line.indexOf("|");
+            if (at > -1) {
+                String phoneHash = line.substring(0, at);
+                final DataTable dataTable = this.dataTableDao.findByPhoneHash(phoneHash);
+                log.info("save : {}", dataTable);
+                if (dataTable != null) {
+                    final String baseName = FilenameUtils.getBaseName(file.getName());
+                    final String text = SpringELUtil.parseExpression(dataTable, dataConf.getTransformFormat()) + "|" + line;
+                    exportTextHelper.writeLine(pathHelper.getTransformExportPath().getAbsolutePath(), baseName, "txt", text);
                 }
-            });
+            }
         }
     }
 
