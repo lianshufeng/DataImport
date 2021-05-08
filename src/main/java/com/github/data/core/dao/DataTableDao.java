@@ -4,6 +4,8 @@ import com.github.data.core.domain.DataTable;
 import com.github.data.core.dao.extend.DataTableDaoExtend;
 import com.github.data.other.mongo.dao.MongoDao;
 
+import java.util.List;
+
 public interface DataTableDao extends MongoDao<DataTable>, DataTableDaoExtend {
 
     /**
@@ -12,6 +14,6 @@ public interface DataTableDao extends MongoDao<DataTable>, DataTableDaoExtend {
      * @param phoneHash
      * @return
      */
-    DataTable findByPhoneHash(String phoneHash);
+    List<DataTable> findByPhoneHash(String phoneHash);
 
 }

@@ -29,6 +29,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -120,16 +121,24 @@ public class DataService {
         @Cleanup BufferedReader reader = new BufferedReader(fileReader);
         String line = null;
         while ((line = reader.readLine()) != null) {
-            int at = line.indexOf("|");
-            if (at > -1) {
-                String phoneHash = line.substring(0, at);
-                final DataTable dataTable = this.dataTableDao.findByPhoneHash(phoneHash);
-                log.info("save : {}", dataTable);
-                if (dataTable != null) {
-                    final String baseName = FilenameUtils.getBaseName(file.getName());
-                    final String text = SpringELUtil.parseExpression(dataTable, dataConf.getTransformFormat()) + "|" + line;
-                    exportTextHelper.writeLine(pathHelper.getTransformExportPath().getAbsolutePath(), baseName, "txt", text);
+            final String lineText = line;
+            try {
+                int at = lineText.indexOf("|");
+                if (at > -1) {
+                    String phoneHash = lineText.substring(0, at);
+                    final List<DataTable> dataTables = this.dataTableDao.findByPhoneHash(phoneHash);
+                    log.info("save : {}", dataTables);
+                    if (dataTables != null && dataTables.size() > 0) {
+                        dataTables.forEach((dataTable) -> {
+                            final String baseName = FilenameUtils.getBaseName(file.getName());
+                            final String text = SpringELUtil.parseExpression(dataTable, dataConf.getTransformFormat()) + "|" + lineText;
+                            exportTextHelper.writeLine(pathHelper.getTransformExportPath().getAbsolutePath(), baseName, "txt", text);
+                        });
+                    }
                 }
+            } catch (Exception e) {
+                e.printStackTrace();
+                log.error(e.getMessage());
             }
         }
     }
