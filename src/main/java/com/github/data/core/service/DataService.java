@@ -31,6 +31,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.Vector;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -96,13 +97,17 @@ public class DataService {
      */
     @SneakyThrows
     public void transformData(File... files) {
+        //线程安全对象
+//        repeat
+        final Vector<String> phoneHashSet = new Vector<>();
+
         //清空存在的导出文件
         Arrays.stream(this.pathHelper.getTransformExportPath().listFiles()).forEach((file) -> {
             file.delete();
         });
         for (final File file : files) {
             executorService.execute(() -> {
-                transformData(file);
+                transformData(phoneHashSet, file);
             });
         }
     }
@@ -114,7 +119,7 @@ public class DataService {
      * @param file
      */
     @SneakyThrows
-    private void transformData(File file) {
+    private void transformData(final Vector<String> phoneHashSet, File file) {
         log.info("转换文件 : {}", file.getName());
 
         @Cleanup FileReader fileReader = new FileReader(file);
@@ -125,14 +130,19 @@ public class DataService {
             try {
                 int at = lineText.indexOf("|");
                 if (at > -1) {
-                    String phoneHash = lineText.substring(0, at);
+                    final String phoneHash = lineText.substring(0, at);
                     final List<DataTable> dataTables = this.dataTableDao.findByPhoneHash(phoneHash);
                     log.info("save : {}", dataTables);
                     if (dataTables != null && dataTables.size() > 0) {
                         dataTables.forEach((dataTable) -> {
-                            final String baseName = FilenameUtils.getBaseName(file.getName());
-                            final String text = SpringELUtil.parseExpression(dataTable, dataConf.getTransformFormat()) + "|" + lineText;
-                            exportTextHelper.writeLine(pathHelper.getTransformExportPath().getAbsolutePath(), baseName, "txt", text);
+                            if (phoneHashSet.contains(phoneHash)) {
+                                log.info("重复数据：" + dataTable);
+                            } else {
+                                final String baseName = FilenameUtils.getBaseName(file.getName());
+                                final String text = SpringELUtil.parseExpression(dataTable, dataConf.getTransformFormat()) + "|" + lineText;
+                                exportTextHelper.writeLine(pathHelper.getTransformExportPath().getAbsolutePath(), baseName, "txt", text);
+                                phoneHashSet.add(phoneHash);
+                            }
                         });
                     }
                 }

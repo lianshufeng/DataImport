@@ -130,7 +130,7 @@ public class TransformUrlController {
         String url_parse_regex = "";
 
         //过滤host
-        preciseUrl = preciseUrl.substring(preciseUrl.indexOf(url_host) + url_host.length() + 1, preciseUrl.length());
+        preciseUrl = preciseUrl.substring(preciseUrl.indexOf(url_host) + url_host.length(), preciseUrl.length());
         //过滤参数
         if (StringUtils.hasText(preciseUrl)) {
             String[] layers = preciseUrl.split("/");
@@ -148,7 +148,7 @@ public class TransformUrlController {
 
             StringBuilder dimText = new StringBuilder();
             for (int i = 0; i < layerCounter; i++) {
-                dimText.append(layers[0] + "/");
+                dimText.append(layers[i] + "/");
             }
             dimText.append(".*");
             url_parse_regex = url_host + "/" + dimText;
@@ -156,9 +156,28 @@ public class TransformUrlController {
             url_parse_regex = url_host + "/.*";
         }
 
+        //格式化URL
+        url_parse_regex = formatUrl(url_parse_regex);
 
         String writeLine = url_host + "," + is_host_fuzzy + "," + url_parse_regex + "," + comments;
         writeLine(outFile, writeLine);
+    }
+
+
+    /**
+     * 格式化URL
+     *
+     * @return
+     */
+    private static String formatUrl(final String url) {
+        String path = url;
+        while (path.indexOf("\\") > -1) {
+            path = path.replaceAll("\\\\", "/");
+        }
+        while (path.indexOf("//") > -1) {
+            path = path.replaceAll("//", "/");
+        }
+        return path;
     }
 
 
