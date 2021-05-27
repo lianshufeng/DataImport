@@ -14,11 +14,11 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class DataTable extends SuperEntity {
 
     //手机号码
-    @Indexed
+    @Indexed(unique = true)
     private String phone;
 
     //crc32
-    @Indexed
+    @Indexed(unique = true)
     private String phoneHash;
 
 
