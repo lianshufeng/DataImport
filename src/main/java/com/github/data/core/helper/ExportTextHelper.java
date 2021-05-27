@@ -16,7 +16,6 @@ public class ExportTextHelper {
     private DataConf dataConf;
 
 
-
     /**
      * 写出一行
      */
@@ -24,6 +23,10 @@ public class ExportTextHelper {
     public synchronized void writeLine(String path, String fileName, String extName, String lineText) {
         final String text = lineText + this.dataConf.getExportNewLineChar();
         File outFile = getFile(path, fileName, extName);
+        //文件不存在则创建父类目录
+        if (!outFile.exists()) {
+            outFile.getParentFile().mkdirs();
+        }
         @Cleanup RandomAccessFile randomAccessFile = new RandomAccessFile(outFile, "rw");
         randomAccessFile.seek(randomAccessFile.length());
         randomAccessFile.write(text.getBytes(this.dataConf.getExportTextCharset()));

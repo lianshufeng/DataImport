@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
+import org.springframework.util.StringUtils;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -184,7 +185,8 @@ public class DataService {
         try {
             final DataTable dataTable = JsonUtil.toObject(dbHelper.toJson(document), DataTable.class);
             log.info("write : {}", dataTable);
-            exportTextHelper.writeLine(this.pathHelper.getDataExportPath().getAbsolutePath(), this.dataConf.getExportFileName(), "txt", dataTable.getPhoneHash() + "|" + dataTable.getImeiHash());
+            String outputFileName = StringUtils.hasText(dataTable.getProvince()) ? dataTable.getProvince() + "/" + this.dataConf.getExportFileName() : this.dataConf.getExportFileName();
+            exportTextHelper.writeLine(this.pathHelper.getDataExportPath().getAbsolutePath(), outputFileName, "txt", dataTable.getPhoneHash() + "|" + dataTable.getImeiHash());
         } catch (Exception e) {
             e.printStackTrace();
             log.error("error : {}", e);

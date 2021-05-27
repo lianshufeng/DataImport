@@ -18,4 +18,4 @@ logging:
     name: logs/data.log
 
 data:
-  importPhoneProvince: false
+  importPhoneProvince: true
