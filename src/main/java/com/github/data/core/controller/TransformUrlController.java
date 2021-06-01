@@ -151,7 +151,7 @@ public class TransformUrlController {
                 dimText.append(layers[i] + "/");
             }
             dimText.append(".*");
-            url_parse_regex = url_host + "/" + dimText;
+            url_parse_regex = url_host + ".*/" + dimText;
         } else {
             url_parse_regex = url_host + "/.*";
         }
