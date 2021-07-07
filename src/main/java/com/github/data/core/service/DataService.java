@@ -206,7 +206,7 @@ public class DataService {
         String line = null;
         while ((line = reader.readLine()) != null) {
             try {
-                String lineText = line;
+                String lineText = line.trim();
                 saveData(lineText);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -229,14 +229,34 @@ public class DataService {
         if (items.length < 2) {
             return;
         }
-        String phone = items[0];
-        if (phone.length() != 11) {
+
+        //根据长度探测手机或者设备号
+        String phone = null;
+        String imei = null;
+        for (String item : items) {
+            if (item.length() == 11) {
+                phone = item;
+            } else if (item.length() == 15) {
+                imei = item;
+            }
+            if (phone != null && imei != null) {
+                break;
+            }
+        }
+
+        if (phone == null || imei == null) {
+            log.error("抛弃 : {}", line);
             return;
         }
-        String imei = items[1];
-        if (imei.length() != 15) {
-            return;
-        }
+
+//        String phone = items[0];
+//        if (phone.length() != 11) {
+//            return;
+//        }
+//        String imei = items[1];
+//        if (imei.length() != 15) {
+//            return;
+//        }
         imei = ImeiUtil.build(imei);
         log.info(" {} -> {}", phone, imei);
 
