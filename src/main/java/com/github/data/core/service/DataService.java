@@ -28,13 +28,11 @@ import org.springframework.util.StringUtils;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.Vector;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.*;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicLong;
 
 @Slf4j
 @Service
@@ -201,18 +199,70 @@ public class DataService {
     private void readAndSaveData(File file) {
         log.info("读取文件 : {}", file.getName());
 
+        AtomicLong count = new AtomicLong(0);
+        long startTime = System.currentTimeMillis();
         @Cleanup FileReader fileReader = new FileReader(file);
         @Cleanup BufferedReader reader = new BufferedReader(fileReader);
-        String line = null;
-        while ((line = reader.readLine()) != null) {
-            try {
-                String lineText = line.trim();
-                saveData(lineText);
-            } catch (Exception e) {
-                e.printStackTrace();
-                log.error("e : {}", e);
+        @Cleanup("cancel") Timer timer = new Timer();
+
+        timer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                long usedTime = (long) ((System.currentTimeMillis() - startTime) / 1000);
+                log.info("count : {} , time : {} , rate : {} ", String.valueOf(count.get()), String.valueOf(usedTime), String.valueOf(count.get() / usedTime));
             }
+        }, 1000, 1000);
+
+
+        //任务池
+        @Cleanup("shutdownNow") ExecutorService taskPool = Executors.newFixedThreadPool(dataConf.getMaxThreadCount());
+        CountDownLatch countDownLatch = new CountDownLatch(dataConf.getMaxThreadCount());
+        //启动线程
+        for (int i = 0; i < dataConf.getMaxThreadCount(); i++) {
+            readTask(taskPool, countDownLatch, reader, count);
         }
+        countDownLatch.await();
+
+
+//        String line = null;
+//        while ((line = reader.readLine()) != null) {
+//            count.addAndGet(1);
+//            try {
+//                String lineText = line.trim();
+//                saveData(lineText);
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//                log.error("e : {}", e);
+//            }
+//        }
+    }
+
+
+    private void readTask(ExecutorService taskPool, CountDownLatch countDownLatch, BufferedReader reader, AtomicLong count) {
+        String line = readLine(reader, count);
+        if (line == null) {
+            countDownLatch.countDown();
+        }
+
+        //执行任务
+        saveData(line.trim());
+
+        //线程继续执行
+        taskPool.execute(() -> {
+            readTask(taskPool, countDownLatch, reader, count);
+        });
+    }
+
+
+    private synchronized String readLine(BufferedReader reader, AtomicLong count) {
+        try {
+            String line = reader.readLine();
+            count.addAndGet(1);
+            return line;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
 
@@ -258,7 +308,7 @@ public class DataService {
 //            return;
 //        }
         imei = ImeiUtil.build(imei);
-        log.info(" {} -> {}", phone, imei);
+//        log.info(" {} -> {}", phone, imei);
 
 
         final DataTable dataTable = new DataTable();
@@ -267,9 +317,11 @@ public class DataService {
         setImei(dataTable, imei);
 
 
-        executorService.execute(() -> {
-            this.dataTableDao.replaceFromImei(dataTable);
-        });
+        this.dataTableDao.replaceFromImei(dataTable);
+
+//        executorService.execute(() -> {
+//            this.dataTableDao.replaceFromImei(dataTable);
+//        });
 
 
     }
